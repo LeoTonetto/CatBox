@@ -7,6 +7,10 @@
   font-style: normal;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   /*background: #171717;*/
   background: #000000;
