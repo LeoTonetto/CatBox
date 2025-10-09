@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ArrowRightIcon } from '@heroicons/react/24/solid'
 
 interface BoxCardProps {
     title: string;
@@ -16,8 +17,9 @@ export default function BoxCard({ title, description, href }: BoxCardProps) {
                     <span>{description}</span>
                 </div>
                 <a href={href}>
-                    <button className="bg-pink-500 hover:bg-purple-500 cursor-pointer text-white font-semibold w-40 px-6 py-3 rounded-xl shadow-md transition-all duration-300 hover:scale-110">
+                    <button className="flex gap-5 items-center  bg-pink-500 hover:bg-purple-500 cursor-pointer text-white font-semibold w-40 px-6 py-3 rounded-xl shadow-md transition-all duration-300 hover:scale-110">
                         Comprar
+                        <ArrowRightIcon className="h-5 w-5" />
                     </button>
                 </a>
             </div>

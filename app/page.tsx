@@ -18,12 +18,16 @@ export default function Navbar() {
         {/* MENU central fixo */}
         <div className="absolute left-1/2 transform -translate-x-1/2">
           <ul className="flex gap-20 text-white font-medium">
-            <li className=" text-purple-400 cursor-pointer transition hover:scale-110">
-              <a href="#mystery-box" className="hover:text-pink-500 text-purple-400 cursor-pointer transition hover:scale-110">
+            <li className="hover:text-pink-500 text-purple-400 cursor-pointer transition hover:scale-110">
+              <a href="#mystery-box">
                 Mystery Box
               </a>
             </li>
-            <li className="hover:text-purple-400 cursor-pointer transition hover:scale-110">Como funciona</li>
+            <li className="hover:text-purple-400 cursor-pointer transition hover:scale-110">
+              <a href="#como-funciona">
+                Como funciona
+              </a>
+            </li>
             <li className="hover:text-purple-400 cursor-pointer transition hover:scale-110">Suporte</li>
           </ul>
         </div>
@@ -53,7 +57,7 @@ export default function Navbar() {
           <Image src="/images/example2.png" alt="Imagem divulgação" width={1700} height={1700} />
         </div>
       </main>
-      <section id="mystery-box" className="p-10">
+      <section id="mystery-box" className="min-h-screen p-10 scroll-mt-5 flex flex-col justify-center bg-black">
         <span className="text-3xl font-bold">
           Nossas opções
         </span>
@@ -61,7 +65,23 @@ export default function Navbar() {
           <BoxCard title="Box Nivel 1" description="iuiu" href="#mystery-box" />
           <BoxCard title="Box Nivel 2" description="iuiu" href="#mystery-box" />
           <BoxCard title="Box Nivel 3" description="iuiu" href="#mystery-box" />
+          <BoxCard title="Kit 3 Box" description="iuiu" href="#mystery-box" />
         </div>
+      </section>
+      <section id="como-funciona" className="bg-purple-500 flex flex-col gap-20">
+      <span className="text-3xl font-bold">
+        Como Funciona
+      </span>
+      <span>
+      A Mystery Box é uma maneira prática, segura e divertida de adquirir chaves de ativação de jogos digitais.
+      Ao comprar uma box, você recebe uma chave de jogo surpresa, selecionada de forma automatizada e aleatória por nosso algoritmo interno, a partir de um catálogo previamente definido pela nossa equipe de curadoria.
+
+      Isso significa que você não receberá jogos extremamente desconhecidos ou de baixo valor, garantindo uma experiência justa e de qualidade.
+      </span>
+      <span>
+      Cada box possui um nível, e quanto maior o nível escolhido, maiores são as chances de receber um jogo de maior valor.
+      As boxes podem conter desde títulos independentes premiados até jogos consagrados e edições especiais.
+      </span>
       </section>
     </div>
   );
