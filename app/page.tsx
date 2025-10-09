@@ -1,5 +1,6 @@
 import Image from "next/image";
 import BoxCard from "@/components/BoxCard";
+import FAQItem from '@/components/FAQItem';
 
 export default function Navbar() {
   return (
@@ -57,7 +58,7 @@ export default function Navbar() {
           <Image src="/images/example2.png" alt="Imagem divulgação" width={1700} height={1700} />
         </div>
       </main>
-      <section id="mystery-box" className="min-h-screen p-10 scroll-mt-5 flex flex-col justify-center bg-black">
+      <section id="mystery-box" className="min-h-screen p-10 scroll-mt-5 flex flex-col justify-center">
         <span className="text-3xl font-bold">
           Nossas opções
         </span>
@@ -68,20 +69,29 @@ export default function Navbar() {
           <BoxCard title="Kit 3 Box" description="iuiu" href="#mystery-box" />
         </div>
       </section>
-      <section id="como-funciona" className="bg-purple-500 flex flex-col gap-20">
+      <section id="como-funciona" className="bg-purple-500 flex flex-col gap-20 min-h-[50vh] justify-center p-10 scroll-mt-5">
       <span className="text-3xl font-bold">
         Como Funciona
       </span>
-      <span>
+      <span className="text-xl">
       A Mystery Box é uma maneira prática, segura e divertida de adquirir chaves de ativação de jogos digitais.
       Ao comprar uma box, você recebe uma chave de jogo surpresa, selecionada de forma automatizada e aleatória por nosso algoritmo interno, a partir de um catálogo previamente definido pela nossa equipe de curadoria.
 
       Isso significa que você não receberá jogos extremamente desconhecidos ou de baixo valor, garantindo uma experiência justa e de qualidade.
       </span>
-      <span>
+      <span className="text-xl">
       Cada box possui um nível, e quanto maior o nível escolhido, maiores são as chances de receber um jogo de maior valor.
       As boxes podem conter desde títulos independentes premiados até jogos consagrados e edições especiais.
       </span>
+      </section>
+      <section>
+      <span className="text-3xl font-bold text-center w-full">
+        FAQ
+      </span>
+      <FAQItem
+            question="O que é uma Mystery Box?"
+            answer="É uma forma de adquirir uma chave de jogo digital surpresa, selecionada automaticamente a partir de um catálogo de jogos cuidadosamente escolhidos."
+      />
       </section>
     </div>
   );
