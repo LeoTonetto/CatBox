@@ -70,7 +70,7 @@ export default function LoginPage() {
                         {/* Links */}
                         <div className="flex flex-col items-center text-sm mt-6 gap-2">
                             <Link
-                                href="/register"
+                                href="/cadastro"
                                 className="text-purple-400 hover:underline hover:text-purple-300 transition"
                             >
                                 Registre-se
