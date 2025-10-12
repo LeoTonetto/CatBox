@@ -1,7 +1,7 @@
-/* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './usuarios/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -16,7 +16,8 @@ import { UsersModule } from './usuarios/user.module';
       synchronize: false,         // cria as tabelas automaticamente (não use em produção)
       logging: true,
     }),
-    UsersModule
+    UsersModule,
+    AuthModule
   ],
 })
 export class AppModule { }

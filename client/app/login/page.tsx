@@ -9,10 +9,36 @@ export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Login:", { email, password });
-        // Aqui você pode conectar com sua API de autenticação
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email_usuario: email,
+                    senha_usuario: password,
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                alert(errorData.message || "E-mail ou senha incorretos");
+                return;
+            }
+
+            const data = await response.json();
+
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", JSON.stringify(data));
+
+            // Redirecionar para página principal
+            window.location.href = "/";
+        } catch (error) {
+            console.error("Erro ao fazer login:", error);
+            alert("Erro ao conectar ao servidor. Tente novamente.");
+        }
     };
 
     return (

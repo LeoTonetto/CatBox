@@ -29,7 +29,6 @@ export default function RegisterPage() {
         }
 
         const validarCPF = (cpf: string) => {
-            // remove tudo que não é número
             cpf = cpf.replace(/\D/g, "");
 
             if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;

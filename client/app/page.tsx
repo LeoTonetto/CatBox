@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import BoxCard from "@/components/BoxCard";
 import FAQItem from '@/components/FAQItem';
@@ -46,10 +48,10 @@ export default function Home() {
             Nossas opções
           </span>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 p-10">
-            <BoxCard title="Box Nivel 1" description="iuiu" href="#mystery-box" />
-            <BoxCard title="Box Nivel 2" description="iuiu" href="#mystery-box" />
-            <BoxCard title="Box Nivel 3" description="iuiu" href="#mystery-box" />
-            <BoxCard title="Kit 3 Box" description="iuiu" href="#mystery-box" />
+            <BoxCard id={1} title="Box Nivel 1" description="iuiu" price={25.55} />
+            <BoxCard id={2} title="Box Nivel 2" description="iuiu" price={50.00} />
+            <BoxCard id={3} title="Box Nivel 3" description="iuiu" price={90.00} />
+            <BoxCard id={4} title="Kit 3 Box" description="iuiu" price={160.00} />
           </div>
         </section>
       </FadeInSection>
