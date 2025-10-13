@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Usuario } from '../usuarios/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
+import { CarrinhoService } from '../carrinho/carrinho.service';
 
 @Injectable()
 export class AuthService {
@@ -11,6 +12,7 @@ export class AuthService {
         @InjectRepository(Usuario)
         private usuarioRepository: Repository<Usuario>,
         private jwtService: JwtService,
+        private carrinhoService: CarrinhoService,
     ) { }
 
     async login(email_usuario: string, senha_usuario: string) {
@@ -26,6 +28,8 @@ export class AuthService {
         if (!senhaValida) {
             throw new UnauthorizedException('E-mail ou senha inválidos');
         }
+
+        await this.carrinhoService.getCarrinho(user.id_usuario);
 
         const payload = { sub: user.id_usuario, email: user.email_usuario };
 

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { ArrowRightIcon } from '@heroicons/react/24/solid'
+import { adicionarItemCarrinho } from "@/app/lib/api";
 
 interface BoxCardProps {
     id: number;
@@ -10,21 +11,22 @@ interface BoxCardProps {
 
 export default function BoxCard({ id, title, description, price }: BoxCardProps) {
 
-    const handleAddToCart = () => {
-        const storedCart = localStorage.getItem("cart");
-        let cart = storedCart ? JSON.parse(storedCart) : [];
-
-        // Verifica se o item já está no carrinho
-        const index = cart.findIndex((item: any) => item.id === id);
-        if (index >= 0) {
-            cart[index].quantity += 1;
-        } else {
-            cart.push({ id, title, description, price, quantity: 1 });
+    const handleAddToCart = async () => {
+        const storedUser = localStorage.getItem("user");
+        if (!storedUser) {
+            window.location.href = "/login";
+            return;
         }
 
-        localStorage.setItem("cart", JSON.stringify(cart));
-        window.dispatchEvent(new Event("cartUpdated")); // atualiza o Navbar
-        window.location.href = "/carrinho"; // redireciona direto
+        try {
+            // Não passamos mais usuarioId, backend pega do JWT
+            await adicionarItemCarrinho(id, 1);
+            window.dispatchEvent(new Event("cartUpdated"));
+            window.location.href = "/carrinho";
+        } catch (err) {
+            console.error(err);
+            alert("Erro ao adicionar o item no carrinho");
+        }
     };
 
     return (
@@ -34,7 +36,7 @@ export default function BoxCard({ id, title, description, price }: BoxCardProps)
                 <div className="flex flex-col">
                     <span className="text-2xl font-bold">{title}</span>
                     <span>{description}</span>
-                    <span className="text-purple-400 font-semibold mt-1">R$ {price.toFixed(2)}</span>
+                    <span className="text-purple-400 font-semibold mt-1">R$ {Number(price).toFixed(2)}</span>
                 </div>
                 <button
                     onClick={handleAddToCart}

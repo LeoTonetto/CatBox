@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ShoppingCartIcon } from "@heroicons/react/20/solid";
 import { UserIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/navigation";
+import { getCarrinho } from "@/app/lib/api";
 
 export default function Navbar() {
     const [user, setUser] = useState<{ nome_usuario: string } | null>(null);
@@ -22,7 +23,6 @@ export default function Navbar() {
 
         if (!storedUser || !token) {
             setUser(null);
-            router.push("/");
             return false;
         }
 
@@ -33,39 +33,49 @@ export default function Navbar() {
             localStorage.removeItem("user");
             localStorage.removeItem("token");
             setUser(null);
-            router.push("/");
             return false;
         }
     };
 
-    const updateCartCount = () => {
-        const storedCart = localStorage.getItem("cart");
-        if (storedCart) {
-            const items = JSON.parse(storedCart);
-            const total = items.reduce((sum: number, item: any) => sum + item.quantity, 0);
+    const fetchCartCount = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            setCartCount(0);
+            return;
+        }
+
+        try {
+            const carrinho = await getCarrinho(); // agora não passa usuarioId
+            const total = carrinho.itens_carrinho.reduce(
+                (sum: number, item: any) => sum + item.quantidade_carrinhoItem,
+                0
+            );
             setCartCount(total);
-        } else {
+        } catch (err) {
+            console.error("Erro ao carregar carrinho:", err);
             setCartCount(0);
         }
     };
 
     useEffect(() => {
-        checkAuth();
-        updateCartCount();
+        const loggedIn = checkAuth();
+        if (loggedIn) fetchCartCount();
 
-        // Atualiza automaticamente em tempo real
-        const interval = setInterval(updateCartCount, 200); // a cada 200ms
-        return () => clearInterval(interval);
+        const handleCartUpdated = () => fetchCartCount();
+        window.addEventListener("cartUpdated", handleCartUpdated);
+
+        return () => window.removeEventListener("cartUpdated", handleCartUpdated);
     }, []);
+
 
     const handleLogout = () => {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
-        sessionStorage.setItem("loggedOut", "true"); // <-- flag de logout
+        sessionStorage.setItem("loggedOut", "true");
         setUser(null);
-        router.push("/"); // vai pra home
+        setCartCount(0);
+        router.push("/");
     };
-
 
     return (
         <nav className="fixed top-0 left-0 w-full shadow-md shadow-purple-700 flex items-center justify-between px-8 py-3 z-50 bg-black">

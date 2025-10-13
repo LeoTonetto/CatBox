@@ -4,81 +4,102 @@ import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import FadeInSection from "@/components/FadeInSection";
 import Loading from "@/components/Loading";
+import {
+    getCarrinho,
+    atualizarQuantidadeCarrinho,
+    removerItemCarrinho,
+} from "@/app/lib/api";
 
 interface CartItem {
-    id: number;
-    title: string;
-    description: string;
-    price: number;
-    quantity: number;
+    id_carrinhoItem: number;
+    produto_carrinhoItem: {
+        id_produto: number;
+        titulo_produto: string;
+        descricao_produto: string;
+        preco_produto: number;
+    };
+    quantidade_carrinhoItem: number;
 }
 
 export default function CarrinhoPage() {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [usuarioId, setUsuarioId] = useState<number | null>(null);
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        const loggedOut = sessionStorage.getItem("loggedOut");
+        if (typeof window === "undefined") return;
 
-        if (!token) {
-            if (loggedOut) {
-                // logout acabou de acontecer, não vai pro login
-                sessionStorage.removeItem("loggedOut");
-                setLoading(false);
-                setCartItems([]); // carrinho vazio
-            } else {
-                // usuário realmente não está logado, vai pra login
-                window.location.href = "/login";
-            }
+        const storedUser = localStorage.getItem("user");
+        const token = localStorage.getItem("token");
+
+        if (!storedUser || !token) {
+            window.location.href = "/login";
             return;
         }
 
-        // usuário logado, carrega carrinho
-        const storedCart = localStorage.getItem("cart");
-        if (storedCart) setCartItems(JSON.parse(storedCart));
-        setLoading(false);
+        setUsuarioId(JSON.parse(storedUser).id_usuario);
     }, []);
 
 
+    useEffect(() => {
+        fetchCarrinho();
+    }, []);
+
+    const fetchCarrinho = async () => {
+        setLoading(true);
+        try {
+            const carrinho = await getCarrinho();
+            setCartItems(carrinho.itens_carrinho || []);
+        } catch (err) {
+            console.error(err);
+            setCartItems([]);
+        }
+        setLoading(false);
+    };
 
 
-    const updateCartStorage = (updatedCart: CartItem[]) => {
-        setCartItems(updatedCart);
-        localStorage.setItem("cart", JSON.stringify(updatedCart));
+    const incrementQuantity = async (produtoId: number) => {
+        const item = cartItems.find(i => i.produto_carrinhoItem.id_produto === produtoId);
+        if (!item) return;
+
+        const updated = await atualizarQuantidadeCarrinho(produtoId, item.quantidade_carrinhoItem + 1);
+
+        // Atualiza localmente para não refazer fetch completo
+        setCartItems(prev =>
+            prev.map(ci =>
+                ci.produto_carrinhoItem.id_produto === produtoId
+                    ? { ...ci, quantidade_carrinhoItem: ci.quantidade_carrinhoItem + 1 }
+                    : ci
+            )
+        );
+
         window.dispatchEvent(new Event("cartUpdated"));
     };
 
-    const incrementQuantity = (id: number) => {
-        const updatedCart = cartItems.map(item =>
-            item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-        );
-        updateCartStorage(updatedCart);
+    const decrementQuantity = async (produtoId: number) => {
+        const item = cartItems.find(i => i.produto_carrinhoItem.id_produto === produtoId);
+        if (!item || item.quantidade_carrinhoItem <= 1) return;
+
+        await atualizarQuantidadeCarrinho(produtoId, item.quantidade_carrinhoItem - 1);
+        fetchCarrinho();
+        window.dispatchEvent(new Event("cartUpdated"));
     };
 
-    const decrementQuantity = (id: number) => {
-        const updatedCart = cartItems
-            .map(item =>
-                item.id === id
-                    ? { ...item, quantity: Math.max(item.quantity - 1, 1) }
-                    : item
-            );
-        updateCartStorage(updatedCart);
-    };
-
-    const removeItem = (id: number) => {
-        const updatedCart = cartItems.filter(item => item.id !== id);
-        updateCartStorage(updatedCart);
+    const removeItem = async (produtoId: number) => {
+        await removerItemCarrinho(produtoId);
+        fetchCarrinho();
+        window.dispatchEvent(new Event("cartUpdated"));
     };
 
     const totalPrice = cartItems.reduce(
-        (sum, item) => sum + item.price * item.quantity,
+        (sum, item) =>
+            sum +
+            item.produto_carrinhoItem.preco_produto *
+            item.quantidade_carrinhoItem,
         0
     );
 
-    const handleCheckout = () => {
-        alert("Redirecionando para o Stripe...");
-    };
+    if (loading) return <Loading />;
 
     return (
         <div>
@@ -90,57 +111,67 @@ export default function CarrinhoPage() {
                         <p>Seu carrinho está vazio.</p>
                     ) : (
                         <div className="flex flex-col gap-4">
-                            {cartItems.map(item => (
+                            {cartItems.map((item) => (
                                 <div
-                                    key={item.id}
+                                    key={item.id_carrinhoItem}
                                     className="flex justify-between items-center p-4 bg-gray-800 rounded-lg"
                                 >
                                     <div>
-                                        <h2 className="font-semibold text-lg">{item.title}</h2>
-                                        <p className="text-gray-400">{item.description}</p>
+                                        <h2 className="font-semibold text-lg">
+                                            {item.produto_carrinhoItem.titulo_produto}
+                                        </h2>
+                                        <p className="text-gray-400">
+                                            {item.produto_carrinhoItem.descricao_produto}
+                                        </p>
                                         <div className="flex items-center gap-2 mt-1">
                                             <button
-                                                onClick={() => decrementQuantity(item.id)}
+                                                onClick={() =>
+                                                    decrementQuantity(
+                                                        item.produto_carrinhoItem.id_produto
+                                                    )
+                                                }
                                                 className="bg-gray-600 px-2 py-1 rounded hover:bg-gray-700 transition"
                                             >
                                                 -
                                             </button>
                                             <span className="text-purple-400 font-semibold">
-                                                {item.quantity}
+                                                {item.quantidade_carrinhoItem}
                                             </span>
                                             <button
-                                                onClick={() => incrementQuantity(item.id)}
+                                                onClick={() =>
+                                                    incrementQuantity(
+                                                        item.produto_carrinhoItem.id_produto
+                                                    )
+                                                }
                                                 className="bg-gray-600 px-2 py-1 rounded hover:bg-gray-700 transition"
                                             >
                                                 +
                                             </button>
                                             <span className="text-purple-400 font-semibold ml-4">
-                                                R$ {(item.price * item.quantity).toFixed(2)}
+                                                R${" "}
+                                                {(
+                                                    item.produto_carrinhoItem.preco_produto *
+                                                    item.quantidade_carrinhoItem
+                                                ).toFixed(2)}
                                             </span>
                                         </div>
                                     </div>
                                     <button
-                                        onClick={() => removeItem(item.id)}
+                                        onClick={() =>
+                                            removeItem(item.produto_carrinhoItem.id_produto)
+                                        }
                                         className="bg-white px-4 py-2 rounded text-black hover:bg-red-500 hover:text-white transition cursor-pointer"
                                     >
                                         Remover
                                     </button>
                                 </div>
                             ))}
-
                             <div className="flex justify-between items-center mt-6 p-4 bg-gray-900 rounded-lg">
                                 <span className="text-xl font-bold">Total:</span>
                                 <span className="text-xl font-bold text-pink-500">
                                     R$ {totalPrice.toFixed(2)}
                                 </span>
                             </div>
-
-                            <button
-                                onClick={handleCheckout}
-                                className="mt-4 w-full bg-green-500 text-white cursor-pointer py-3 rounded-xl font-semibold hover:bg-green-600 transition"
-                            >
-                                Finalizar Compra
-                            </button>
                         </div>
                     )}
                 </div>
